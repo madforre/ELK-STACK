@@ -1,0 +1,87 @@
+Logstash
+
+    데이터를 ElasticSearch에 수집해준다
+
+Kibana
+
+    ElasticSearch를 화면에 보기좋게 보여준다.
+    데이터의 시각화를 담당한다.
+
+
+ElasticSearch
+
+    Big-O notation을 보면 ElasticSearch 는 해쉬테이블과 같다. O(1)
+
+    해쉬?
+
+        해시함수(hash function)란 데이터의 효율적 관리를 목적으로 임의의 길이의 데이터를 고정된 길이의 데이터로 매핑하는 함수이다.
+        이 때 매핑 전 원래 데이터의 값을 키(key), 매핑 후 데이터의 값을 해시값(hash value), 매핑하는 과정 자체를 해싱(hashing)라고 합니다.
+
+        해시함수는 해쉬값의 개수보다 대개 많은 키값을 해쉬값으로 변환(many-to-one 대응)하기 때문에 해시함수가 서로 다른 두 개의 키에 대해 동일한 해시값을 내는 해시충돌(collision)이 발생하게 됩니다. 
+
+    ElasticSearch는 관계형데이터베이스(RDB)보다 탐색이 훨씬 더 빠르다.
+
+    ElasticSearch는 REST API를 사용한다.
+
+    ElasticSearch vs Relational DB -   CRUD
+
+        Index           Database
+        Type             Table
+        Document          Row
+        Field            Column
+        Mapping          Schema
+
+        GET              Select       Read
+        PUT              Update       Update
+        POST             Insert       Create
+        DELETE           Delete       Delete
+
+    * curl 을 이용하여 REST API를 확인해보자.
+
+        요청 보내기
+        
+            REST API를 사용할 때는 cURL 옵션 중 몇 가지를 꼭 알아두는 것이 좋다. 
+
+        prefix
+
+            -i: 응답 헤더 출력 (옵션 없으면 응답 본문만 출력함)
+            -v: 중간 처리 과정, 오류 메시지, 요청 메시지와 응답 메시지를 헤더와 본문을 포함해 전체 출력
+            -X: 요청 메소드를 지정 (옵션 없으면 기본값은 GET)
+            -H: 요청 헤더를 지정
+            -d: 요청 본문을 지정 (옵션 없으면 요청 본문 없음)
+
+        * uri 파라미터에 ?pretty 라고 쳐주면 결과값을 더 깔끔하게 출력할 수 있다!
+
+        6.0 버전부터는 요청 헤더에 content-type를 명시한다.
+    
+            ex ) curl -XPOST http://locahost:9200/classes/class/1/ -H 'Content-Type: application/json' -d '{“title” : "Algorithm", "professor" : "John"}'
+
+        VERIFY INDEX
+
+            curl -XGET http://localhost:9200/classes
+                        엘라스틱 서치        /  Index name
+
+            curl -XGET http://localhost:9200/classes?pretty ( 좀더 깔끔하게 출력된다. )
+
+        CREATE INDEX
+
+            curl -XPUT http://localhost:9200/classes
+
+        DELETE INDEX
+
+            curl -XDELETE http://localhost:9200/classes
+
+        CREATE DOCUMENT
+
+            curl -XPOST http://localhost:9200/classes/class/1/ -H 'Content-Type: application/json' -d '{“title” : "Algorithm", "professor" : "John"}'
+
+        CREATE INDEX, TYPE, DOCUMENT FROM FILE (파일로부터 생성)
+
+            curl -XPOST http://localhost:9200/classes/class/1 -d @oneclass.json
+
+
+
+
+
+
+
