@@ -1,3 +1,9 @@
+ELK STACK이란?
+
+    logstash, elasticsearch, kibana 이 3가지를 말하는 것으로 데이터 분석에 쓰이는 도구들이다.
+    logstash가 여러 정보를 수집해서 변환 후 elasticsearch에 보내주고,
+    elasticsearch는 필요에 맞게(kibana에 맞게) 데이터 정리 하면 그 데이터를 kibana가 시각화 한다.
+
 Logstash
 
     데이터를 ElasticSearch에 수집해준다
@@ -6,7 +12,6 @@ Kibana
 
     ElasticSearch를 화면에 보기좋게 보여준다.
     데이터의 시각화를 담당한다.
-
 
 ElasticSearch
 
@@ -48,7 +53,8 @@ ElasticSearch
             -v: 중간 처리 과정, 오류 메시지, 요청 메시지와 응답 메시지를 헤더와 본문을 포함해 전체 출력
             -X: 요청 메소드를 지정 (옵션 없으면 기본값은 GET)
             -H: 요청 헤더를 지정
-            -d: 요청 본문을 지정 (옵션 없으면 요청 본문 없음)
+            -d: 요청 본문을 지정 (옵션 없으면 요청 본문 없음) FORM 을 POST 하는 HTTP나 JSON 으로 데이타를 주고받는 REST 기반의 웹서비스 디버깅시 유용한 옵션이다
+            -s:	--silent 정숙 모드. 진행 내역이나 메시지등을 출력하지 않는다. HTTP response code 만 가져오거나 할 경우 유리
 
         * uri 파라미터에 ?pretty 라고 쳐주면 결과값을 더 깔끔하게 출력할 수 있다!
 
@@ -73,15 +79,108 @@ ElasticSearch
 
         CREATE DOCUMENT
 
-            curl -XPOST http://localhost:9200/classes/class/1/ -H 'Content-Type: application/json' -d '{“title” : "Algorithm", "professor" : "John"}'
+            curl -XPOST http://localhost:9200/classes/class/1/ -H 'Content-Type: application/json' -d '{"title" : "Algorithm", "professor" : "John"}'
 
         CREATE INDEX, TYPE, DOCUMENT FROM FILE (파일로부터 생성)
 
             curl -XPOST http://localhost:9200/classes/class/1 -d @oneclass.json
 
+        ADD ONE MORE FIELD
 
+            curl -XPOST http://localhost:9200/classes/class/1/_update -H 'Content-Type: application/json' -d '{"doc" : {"unit" : 1}}'
 
+        UPDATE ONE FIELD
 
+            curl -XPOST http://localhost:9200/classes/class/1_update -H 'Content-Type: application/json' -d '{"doc" : {"unit":2}}'
 
+        UPDATE ONE FIELD WITH SCRIPT
+
+            curl -XPOST http://localhost:9200/classes/class/1_update -H 'Content-Type: application/json' -d '{"script" : "ctx._source.unit += 5"}'
+
+여러 개의 document를 한번에 ElasticSearch에 삽입하는 방법
+
+    
+    ex ) CLASSES.JSON (BULK FILE)
+
+        curl -s -H “Content-Type: application/x-ndjson” -XPOST localhost:9200/_bulk -–data-binary “@classes.json”
+
+        벌크옵션 주어서 파일에서 데이터 바이너리를 불러온다.
+        여러 개의 document를 한번에 삽입할 수 있다!
+
+    BULK FILE은 두개의 라인으로 구성되어 있다.
+    
+        첫번째는 메타 인포메이션이다. (어떤 인덱스, 어떤 타입, 어떤 아이디 등등)
+        두번째는 document.
+
+엘라스틱서치 매핑(Mapping)
+
+    elastic search 는 dynamic mapping 또는 explicit mapping 이 있다. 
+    dynamic mapping은 json 파일을 입력하면 자동으로 mapping type이 정해지는것이고 
+    explicit mapping 은 필드마다 매핑 타입을 따로 지정해주는 것이다. (공식 문서 참조)
+
+    실제로 일할 때에는 매핑을 넣어야 한다! (안넣으면 위험함.)
+    잘못 지정된 타입같은 경우에는 kibana같이 시각화 할 때 문제가 생긴다.
+    숫자인데 문자열로 저장된다거나 하면 평균이나 어떠한 계산 값을 할 때 문제가 생긴다.
+
+    명시적 매핑을 할 때 일일이 필드 이름 타이핑 하기 번거로우니
+    일단 bulk index로 dynamic mapping을 한 후 위 방법으로 mapping을 확인하거나 
+    kibana에서 mapping을 받아와서 수정하고 싶은 부분만 수정하도록 한다.
+
+    아무튼 데이터를 관리할 때는 항상 매핑을 추가해야 한다. (또는 추후에 꼭 추가한다.)
+    그래야 시각화 할 때, 분석할 때 도움을 받을 수 있다.
+
+    CREATE MAPPING (명시적 매핑 explicit mapping)
+
+        ex) curl -XPUT 'http://localhost:9200/classes/class/_mapping' -H 'Content-Type: application/json' -d @classesRating_mapping.json
+
+    ADD DOCUMENTS (명시적 매핑 후 다량의 데이터 추가 - 벌)
+
+        curl -XPOST http://localhost:9200/bulk?pretty -H 'Content-Type: application/json' --data-binary @classes.json
+
+    VERIFY DOCUMENTS
+
+        curl -XGET http://localhost:9200/classes/class/1/?pretty
+
+HOW TO STORE DATA FIELD TYPE
+
+        {
+            "class" : {
+                "properties" : {
+                    "title" : {
+                        "type" : "string"
+                    },
+                    "professor" : {
+                        "type" : "string"
+                    },
+                    "major" : {
+                        "type" : "string"
+                    },
+                    "semester" : {
+                        "type" : "string"
+                    },
+                    "student_count" : {
+                        "type" : "integer"
+                    },
+                    "unit" : {
+                        "type" : "integer"
+                    },
+                    "rating" : {
+                        "type" : "integer"
+                    },
+                    "submit_date" : { // 타입을 date, 데이트 포맷을 써주면 시각화할 때 날짜별로 쪼개서 보여줄 수 있다. 
+                        "type" : "date",
+                        "format" : "yyyy-MM-dd"
+                    },
+                    "school_location" : { // Kibana에서 데이터를 시각화할 때 geo_point 쓰면 지도위에 직접 표시 가능
+                        "type" : "geo_point"
+                    }
+                }
+            }
+        }
+
+        * string 타입 때문에 에러나는 경우 unix 계열에서는 다음과같은 명령어로 string 을 text 로 변환하자.
+            6.1버전 기준으로 string 타입은 에러발생! text 타입을 사용하면 된다.
+
+        sed “s/string/text/” classesRating_mapping.json | tee classesRating_mapping.json
 
 
