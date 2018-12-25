@@ -104,7 +104,7 @@ ElasticSearch
 
         curl -s -H “Content-Type: application/x-ndjson” -XPOST localhost:9200/_bulk -–data-binary “@classes.json”
 
-        벌크옵션 주어서 파일에서 데이터 바이너리를 불러온다.
+        벌크옵션 주어서 파일에서 데이터 바이너리를 불러온다. (파일에서 직접 뽑아내는 것이기 때문에 --data-binary 옵션을 꼭 주어야 한다!)
         여러 개의 document를 한번에 삽입할 수 있다!
 
     BULK FILE은 두개의 라인으로 구성되어 있다.
@@ -183,4 +183,45 @@ HOW TO STORE DATA FIELD TYPE
 
         sed “s/string/text/” classesRating_mapping.json | tee classesRating_mapping.json
 
+    엘라스틱 데이터 조회 (Search)
 
+        1. 벌크 파일을 우선 삽입한다.
+
+            ADD DOCUMENTS 
+
+                ex) curl -XPOST 'localhost:9200/_bulk' -H 'Content-Type: application/json' --data-binary @simple_basketball.json
+
+        2. SEARCH
+
+                ex) curl -XGET localhost:9200/basketball/record/_search?pretty
+
+                    다큐먼트들을 확인할 수 있다.
+
+        3. SEARCH - URI
+
+            curl -XGET 'localhost:9200/basketball/record/_search?q=points:30&pretty'
+
+        4. SEARCH - REQUEST BODY (다이렉트하게 직접적으로 찾는 방법, 도큐먼트를 출력한다.)
+
+            curl -XGET 'localhost:9200/basketball/record/_search -H Content-Type: application/json -d '
+            {
+                "query":{
+                    "term" : {"points":30}
+                }
+            }'
+
+            리퀘스트 바디에는 여러가지 방법들이 있다. 이것 또한 방법 중 하나이다.
+
+    AGGREGATIONS
+
+        엘라스틱서치에서 어그리게이션은 DOCUMENT 안에서 조합을 통해서 값을 도출한다.
+
+        그중에서 METRIC AGGREGATIONS은 산수를 할 때 쓰인다. (ex - 평균, 최솟값, 최댓값 등등)
+
+        * Metric Aggregation
+
+            ADD BASKETBALL DOCUMENTS
+
+                -curl -XPOST 'localhost:9200/_bulk' --data-binary @ simple_basketball.json
+
+        * 
