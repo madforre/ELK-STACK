@@ -155,16 +155,16 @@ HOW TO STORE DATA FIELD TYPE
             "class" : {
                 "properties" : {
                     "title" : {
-                        "type" : "string"
+                        "type" : "text"
                     },
                     "professor" : {
-                        "type" : "string"
+                        "type" : "text"
                     },
                     "major" : {
-                        "type" : "string"
+                        "type" : "text"
                     },
                     "semester" : {
-                        "type" : "string"
+                        "type" : "text"
                     },
                     "student_count" : {
                         "type" : "integer"
@@ -186,7 +186,7 @@ HOW TO STORE DATA FIELD TYPE
             }
         }
 
-        * string 타입 때문에 에러나는 경우 unix 계열에서는 다음과같은 명령어로 string 을 text 로 변환하자.
+        * string 타입 때문에 에러나는 경우 unix 계열에서는 다음과 같은 명령어로 string 을 text 로 변환하자.
             6.1버전 기준으로 string 타입은 에러발생! text 타입을 사용하면 된다.
 
         sed “s/string/text/” classesRating_mapping.json | tee classesRating_mapping.json
@@ -224,7 +224,23 @@ HOW TO STORE DATA FIELD TYPE
 
         엘라스틱서치에서 어그리게이션은 DOCUMENT 안에서 조합을 통해서 값을 도출한다. (BigData ch03폴더 참고)
 
+        어떠한 것을 조합해서 나타낸다.
+
         그중에서 METRIC AGGREGATIONS은 산수를 할 때 쓰인다. (ex - 평균, 최솟값, 최댓값 등등)
+
+
+        * Structuring Aggregations
+
+            "aggregations" : {
+                "<aggregation_name>" : {
+                    "<aggregation_type>" : {
+                        <aggregation_body>
+                    }
+                    [,"meta" : {  [<meta_data_body>] } ]?
+                    [,"aggregations" : { [<sub_aggregation>]+ } ]?
+                }
+                [,"<aggregation_name_2>" : { ... } ]*
+            }
 
         * Metric Aggregation
 
@@ -254,10 +270,47 @@ HOW TO STORE DATA FIELD TYPE
 
                 curl -XGET localhost:9200/_search?pretty -H "Content-Type:application/json" --data-binary @stats_points_aggs.json
 
-        * Bucket Aggregation
+        * Bucket Aggregation (group by)
 
+            각각 팀별로 어떠한 결과 값을 도출하고 싶다면 버켓 어그리게이션을 사용한다.
+
+            * 버켓 어그리게이션 같은 경우에는 서브 어그리게이션을 포함할 수 있다. ex) 버켓 안에 메트릭 어그리게이션 가능. ch04의 stats_by_team.json 참고.
+
+            CREATE BASKETBALL INDEX
             
+                curl -XPUT localhost:9200/basketball
 
-    
+            MAPPING BASKETBALL TYPE
 
-        
+                basketball_mapping.json 확인
+
+                fielddata가 true이면 어그리게이션 할 때 사용 가능.
+
+                curl -XPUT 'localhost:9200/basketball/record/_mapping' -H 'Content-Type: application/json' -d @basketball_mapping.json
+
+            SAMPLE DATA - BASKETBALL DOCUMENTS
+
+                vi twoteam_basketball.json
+
+            ADD BASKETBALL DOCUMENTS
+
+                curl -XPOST 'localhost:9200/_bulk' -H "Content-Type:application/json" --data-binary @twoteam_basketball.json
+
+            TERM AGGS (GROUP BY TEAM)
+
+                vi terms_aggs.json 명령어로 확인
+
+                curl -XGET localhost:9200/_search?pretty -H "Content-Type:application/json" --data-binary @terms_aggs.json
+
+                team에 관련된 어그리게이션을 통한 값이 도출된다.
+
+            AGGS (STATS GROUP BY TEAM)
+
+                vi stats_by_team.json
+
+                * 버켓 어그리게이션 같은 경우에는 서브 어그리게이션을 포함할 수 있다.
+
+                curl -XGET localhost:9200/_search?pretty -H "Content-Type:application/json" --data-binary @stats_by_team.json (결과 값 확인)
+
+                단순히 결과값이 DOCUMENT뿐이였지만, 서브 어그리게이션인 메트릭 어그리게이션까지 나타내게 된다.
+            
