@@ -1,3 +1,12 @@
+직렬화란?
+
+    객체의 직렬화는 객체의 내용을 바이트 단위로 변환하여 파일 또는 네트워크를 통해서 스트림(송수신)이 가능하도록 하는 것을 의미한다.
+
+YAML (yml 파일)
+
+    YAML은 XML, C, 파이썬, 펄, RFC2822에서 정의된 e-mail 양식에서 개념을 얻어 만들어진 '사람이 쉽게 읽을 수 있는' 데이터 직렬화 양식이다. 
+    오늘날 XML과 JSON이 데이터 직렬화에 주로 쓰이기 시작하면서, 많은 사람들이 YAML을 '가벼운 마크업 언어'로 사용하려 하고 있다.
+
 ELK STACK이란?
 
     logstash, elasticsearch, kibana 이 3가지를 말하는 것으로 데이터 분석에 쓰이는 도구들이다.
@@ -141,7 +150,7 @@ ElasticSearch
 
         ex) curl -XPUT 'http://localhost:9200/classes/class/_mapping' -H 'Content-Type: application/json' -d @classesRating_mapping.json
 
-    ADD DOCUMENTS (명시적 매핑 후 다량의 데이터 추가 - 벌)
+    ADD DOCUMENTS (명시적 매핑 후 다량의 데이터 추가 - 벌크)
 
         curl -XPOST http://localhost:9200/bulk?pretty -H 'Content-Type: application/json' --data-binary @classes.json
 
@@ -313,4 +322,71 @@ HOW TO STORE DATA FIELD TYPE
                 curl -XGET localhost:9200/_search?pretty -H "Content-Type:application/json" --data-binary @stats_by_team.json (결과 값 확인)
 
                 단순히 결과값이 DOCUMENT뿐이였지만, 서브 어그리게이션인 메트릭 어그리게이션까지 나타내게 된다.
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Kibana
+
+        INSTALL KIBANA
+
+            1. Download DEB file from https://www.elastic.co/downloads/kibana
+
+            2. sudo dpkg -i kibana-6.5.4-amd64.deb
+
+        CONFIG KIBANA (키바나 설정 /ETC/KIBANA/KIBANA.YML에서 설정할 것)
+
+            * 키바나와 엘라스틱 버젼은 동일해야 한다.
+
+            sudo nano /ETC/KIBANA/KIBANA.YML (파일 열어서 수정)
+
+                # elasticsearch.url: YOUR_ELASTICSEARCH_URL (http://localhost:9200)
+                # server.host: the address to which the kibana server will bind (localhost)
+
+                위 두개 사항을 상황에 맞게 수정해줄 것.
+
+        START KIBANA (USR/SHARE/KIBANA/BIN/KIBANA)
+
+            sudo /usr/share/kibana/bin/kibana
+
+Kibana management
+
+    키바나 관리 (인덱스부터 설정한 뒤 필드네임 설정한다.)
+
+Kibana discover
+
+    Time Range, 필터 기능을 이용하여 원하는 필드의 데이타를 확인할 수 있다.
+
+Kibana Visualize - 막대그래프, 파이차트
+
+    Buckets Aggregation 으로 Terms과 필드,
+
+    Metrics Aggregation으로 원하는 어그리게이션과 필드를 설정하고 시각화하여 확인할 수 있다.
+
+Kibana Visualize - 타일맵, 지도에 표시
+
+
+
+
+
+
+
+
+
+
             
+
+
+
+
+
+
+            
+
+        
+        
+
+
+
+
+
+------------------------------------------------------------------------------------------------------------------------------------------------
