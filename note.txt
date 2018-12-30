@@ -362,7 +362,7 @@ Kibana Visualize - 막대그래프, 파이차트
 
     Metrics Aggregation으로 원하는 어그리게이션과 필드를 설정하고 시각화하여 확인할 수 있다.
 
-Kibana Visualize - 타일맵, 지도에 표시
+Kibana Visualize - 지도에 표시 (BigData ch02 폴더 활용) / coordinate map
 
     CREATE INDEX
 
@@ -372,7 +372,7 @@ Kibana Visualize - 타일맵, 지도에 표시
 
     CREATE MAPPING (ch02 폴더 참고)
 
-        curl -XPUT 'http://localhost:9200/classes/class/_mapping' -H 'Content-Type:application:json' -d @classesRating_mapping.json
+        curl -XPUT 'http://localhost:9200/classes/class/_mapping' -H 'Content-Type:application/json' -d @classesRating_mapping.json
 
         단순한 text인지, 아니면 geo_point인지 모르기 때문에 맵핑을 함으로써 지도에 표시할 수 있는 데이터인지 아닌지 알려주어야 한다.
 
@@ -384,7 +384,7 @@ Kibana Visualize - 타일맵, 지도에 표시
 
     ADD DOCUMENTS
 
-        curl -XPOST http://localhost:9200/_bulk?pretty -H 'Content-Type:application:json' --data-binary @classes.json
+        curl -XPOST http://localhost:9200/_bulk?pretty -H 'Content-Type:application/json' --data-binary @classes.json
 
     VERIFY DOCUMENTS
 
@@ -392,4 +392,20 @@ Kibana Visualize - 타일맵, 지도에 표시
 
         도큐먼트 확인
 
+Kibana Dashboard
+
+    Save기능으로 차트를 저장할 수 있다.
+    대시보드에서 전체적인 차트들을 펼쳐 볼 수 있음.
+
 ------------------------------------------------------------------------------------------------------------------------------------------------
+
+리눅스 명령어 참고
+
+    bg - 백그라운드 실행 확인
+    ctrl + z - 실행 중인 프로그램을 백그라운드로.
+    fg%1 첫번째 해당 백그라운드 프로그램 재시작
+    fg - 포어그라운드 시킴
+
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+
