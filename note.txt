@@ -79,7 +79,7 @@ ElasticSearch
     
             ex ) curl -XPOST http://locahost:9200/classes/class/1/ -H 'Content-Type: application/json' -d '{“title” : "Algorithm", "professor" : "John"}'
 
-        VERIFY INDEX
+        VERIFY INDEX4
 
             curl -XGET http://localhost:9200/classes
                         엘라스틱 서치        /  Index name
@@ -525,6 +525,8 @@ REAL POPULATION ANALYSIS WITH ELK STACK (ch06 logstash.conf 참고)
     filebeat - Tomcat logs, db logs, etc..
 
     Amazon S3 - Backup / restore using 
+
+엘라스틱 서치는 데이터 분석해주는 도구들 중 데이터를 정리하는 역할
     
 ---------------------------------------------------------------
 
